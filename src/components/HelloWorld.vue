@@ -14,8 +14,12 @@
       <draggable v-model="compShowList" draggable=".draggable-item" :sort="true" chosen-class="chosen"
         :forceFallback="true" animation="600">
         <div class="draggable-item" v-for="(element,index) in compShowList" :data-index="index" :key="index">
-          <div v-if="element.isMoving" class="dragging-content">移动中</div>
-          <div v-else class="item-content"> {{element.text}}</div>
+          <template v-if="element.isMoving">
+            <div class="dragging-hover" :data-index="index">移动中</div>
+          </template>
+          <template v-else>
+            <div class="item-content" :data-index="index"> {{element.text}}</div>
+          </template>
         </div>
       </draggable>
     </main>
@@ -90,43 +94,51 @@ export default {
       const targetDiv = e.target.className
       // 如果在包裹器内浮动
       if (targetDiv === 'draggable-wrap') {
+        console.log(1)
         const addingComp = { name: this.draggingCompType, isMoving: true, text: this.draggingCompText }
         if (!this.isDragging) {
+          console.log(2)
           this.currentaddCompIndex = this.compShowList.length
           this.isDragging = true
           this.compShowList.push(addingComp)
         }
-        // 如果在包裹器内添加的元素上浮动
-      } else if (targetDiv === 'draggable-item') {
+        // 如果在包裹器内添加的元素上浮动 [draggable-item, dragging-hover, item-content]
+        // } else if (targetDiv === 'draggable-item') {
+      } else if (['draggable-item', 'dragging-hover', 'item-content'].includes(targetDiv)) {
+        console.log(e.target.className)
         const addingComp = { name: this.draggingCompType, isMoving: true, text: this.draggingCompText }
         // 获取浮动在内部元素的位置信息 距离顶部距离、目标元素高度、目标元素排序
-        let [y, overCompHeight, overCompIndex] = [e.offsetY, e.target.offsetHeight, e.target.dataset.index]
+        let [y, overCompHeight, overCompIndex] = [e.offsetY, e.target.offsetHeight, +e.target.dataset.index]
         //  若为 true 放到目标元素上方，否则为下方
         let direction = y < overCompHeight / 2
+        // 如果直接拖拽到某目标元素上方
         if (!this.isDragging) {
           if (direction) {
-            if (overCompIndex === 0) {
-              this.compShowList.unshift(addingComp)
-            }
-          }
-        }
-        if (direction) {
-          console.log('overCompIndex', overCompIndex)
-          if (!this.compShowList[overCompIndex - 1].isMoving) {
-            // 在元素上方插入
-            const temp = this.compShowList.splice(this.currentaddCompIndex, 1)
-            this.compShowList.splice(overCompIndex, 0, temp[0])
+            this.compShowList.splice(overCompIndex, 0, addingComp)
+          } else {
+            overCompIndex +=1
+            this.compShowList.splice(overCompIndex, 0, addingComp)
           }
         } else {
-          console.log(333)
-          console.log('overCompIndex', overCompIndex)
-          console.log('currentaddCompIndex', this.currentaddCompIndex)
-          console.log('compShowListLength', this.compShowList.length)
-          console.log('compShowList', this.compShowList)
-          // 在元素下方插入
-          const temp = this.compShowList.splice(this.currentaddCompIndex, 1)
-          this.compShowList.splice(overCompIndex + 1, 0, temp[0])
+          // 是否已经将拖动的元素插入相应位置
+          let insertFlag = false,
+            preCompIndex = null,
+            nextCompIndex = null
+          if (direction) {
+            preCompIndex = overCompIndex === 0 ? 0 : overCompIndex - 1
+            insertFlag = this.compShowList[preCompIndex].isMoving
+          } else {
+            nextCompIndex = overCompIndex + 1
+            insertFlag = this.compShowList.length > nextCompIndex && this.compShowList[nextCompIndex].isMoving
+          }
+          // 若为 true 则已经插入元素到draggalbe列表
+          if (insertFlag) return
+          // 否则，执行插入
+          const tempCurrentaddCompList = this.compShowList.splice(this.currentaddCompIndex, 1)
+          this.compShowList.splice(overCompIndex, 0, tempCurrentaddCompList[0])
         }
+        this.currentaddCompIndex = overCompIndex
+        this.isDragging = true
       }
     },
     // 触发在 draggable-wrap 上的放置事件
@@ -163,9 +175,12 @@ export default {
     border: 1px solid green;
     width: 50%;
     .draggable-item {
-      padding: 50px 0;
-      border: 1px solid rgba(166, 255, 0, 0.959);
+      .item-content {
+        padding: 50px 0;
+        border: 1px solid rgba(166, 255, 0, 0.959);
+      }
     }
+    .dragging-hover,
     .chosen {
       border: solid 2px #3089dc !important;
     }
