@@ -94,10 +94,8 @@ export default {
       const targetDiv = e.target.className
       // 如果在包裹器内浮动
       if (targetDiv === 'draggable-wrap') {
-        console.log(1)
         const addingComp = { name: this.draggingCompType, isMoving: true, text: this.draggingCompText }
         if (!this.isDragging) {
-          console.log(2)
           this.currentaddCompIndex = this.compShowList.length
           this.isDragging = true
           this.compShowList.push(addingComp)
@@ -105,13 +103,13 @@ export default {
         // 如果在包裹器内添加的元素上浮动 [draggable-item, dragging-hover, item-content]
         // } else if (targetDiv === 'draggable-item') {
       } else if (['draggable-item', 'dragging-hover', 'item-content'].includes(targetDiv)) {
-        console.log(e.target.className)
         const addingComp = { name: this.draggingCompType, isMoving: true, text: this.draggingCompText }
         // 获取浮动在内部元素的位置信息 距离顶部距离、目标元素高度、目标元素排序
         let [y, overCompHeight, overCompIndex] = [e.offsetY, e.target.offsetHeight, +e.target.dataset.index]
         //  若为 true 放到目标元素上方，否则为下方
         let direction = y < overCompHeight / 2
         // 如果直接拖拽到某目标元素上方
+        // 首次拖拽到某目标元素上方，则判断插入元素
         if (!this.isDragging) {
           if (direction) {
             this.compShowList.splice(overCompIndex, 0, addingComp)
@@ -119,8 +117,9 @@ export default {
             overCompIndex +=1
             this.compShowList.splice(overCompIndex, 0, addingComp)
           }
+          // 在所有目标元素上方来回拖动，
         } else {
-          // 是否已经将拖动的元素插入相应位置
+          // 判断是否已经将拖动的元素插入相应位置
           let insertFlag = false,
             preCompIndex = null,
             nextCompIndex = null
@@ -134,7 +133,9 @@ export default {
           // 若为 true 则已经插入元素到draggalbe列表
           if (insertFlag) return
           // 否则，执行插入
+          // 1 取出未放置完成的元素
           const tempCurrentaddCompList = this.compShowList.splice(this.currentaddCompIndex, 1)
+          // 2 将元素放置到指定位置
           this.compShowList.splice(overCompIndex, 0, tempCurrentaddCompList[0])
         }
         this.currentaddCompIndex = overCompIndex
