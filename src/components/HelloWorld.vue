@@ -45,7 +45,11 @@ export default {
         { name: 'goods', text: '商品' },
         { name: 'spread', text: '通告' }
       ],
-      compShowList: [],
+      compShowList: [
+        { name: 'banner', text: '轮播图' },
+        { name: 'goods', text: '商品' },
+        { name: 'spread', text: '通告' }
+      ],
       // 是否正在拖动某元素
       isDragging: false,
       // 正在拖动的元素组件类型
@@ -114,7 +118,7 @@ export default {
           if (direction) {
             this.compShowList.splice(overCompIndex, 0, addingComp)
           } else {
-            overCompIndex +=1
+            overCompIndex += 1
             this.compShowList.splice(overCompIndex, 0, addingComp)
           }
           // 在所有目标元素上方来回拖动，
