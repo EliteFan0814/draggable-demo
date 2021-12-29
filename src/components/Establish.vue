@@ -1,27 +1,36 @@
 <template>
   <div class="hello">
     <!-- 左侧组件列表 -->
-    <aside>
+    <aside class="complist">
       <ul>
         <li v-for="item in compList" :key="item.id" draggable @dragstart="handleDragStart" @dragend="handleDragEnd"
           :data-comp-type="item.name" :data-text="item.text">
-          {{item.text}}
+          <i :class="item.icon"></i>
+          <span>{{item.text}}</span>
         </li>
       </ul>
     </aside>
     <!-- 中间组件预览排列 -->
-    <main class="draggable-wrap" @dragover="handleDragOver" @drop="handleDrop">
-      <draggable v-model="compShowList" draggable=".draggable-item" :sort="true" chosen-class="chosen"
-        :forceFallback="true" animation="600">
-        <div class="draggable-item" v-for="(element,index) in compShowList" :data-index="index" :key="index">
-          <template v-if="element.isMoving">
-            <div class="dragging-hover" :data-index="index">移动中</div>
-          </template>
-          <template v-else>
-            <div class="item-content" :data-index="index"> {{element.text}}</div>
-          </template>
+    <main class="platform-wrap">
+      <div class="platform">
+        <div class="wxheader"><span>{{title}}</span></div>
+        <div class="draggable-wrap" @dragover="handleDragOver" @drop="handleDrop">
+          <draggable v-model="compShowList" draggable=".draggable-item" :sort="true" :forceFallback="true"
+            animation="600">
+            <div class="draggable-item" v-for="(element,index) in compShowList" :data-index="index" :key="index"
+              @click="handleClick(element.id)">
+              <div class="target-hover"></div>
+              <div :class="{'target-active':clickedCompId === element.id}"></div>
+              <template v-if="element.isMoving">
+                <div class="dragging-hover" :data-index="index"><span>组件放置区域</span></div>
+              </template>
+              <template v-else>
+                <div class="item-content" :data-index="index"> {{element.text}}</div>
+              </template>
+            </div>
+          </draggable>
         </div>
-      </draggable>
+      </div>
     </main>
   </div>
 </template>
@@ -31,7 +40,7 @@ import draggable from 'vuedraggable'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
-  name: 'HelloWorld',
+  name: 'Establish',
   components: {
     draggable
   },
@@ -41,15 +50,14 @@ export default {
   data() {
     return {
       compList: [
-        { name: 'banner', text: '轮播图' },
-        { name: 'goods', text: '商品' },
-        { name: 'spread', text: '通告' }
+        { name: 'search', text: '搜索', icon: 'el-icon-search' },
+        { name: 'banner', text: '轮播图', icon: 'el-icon-picture' },
+        { name: 'spread', text: '通告', icon: 'el-icon-message-solid' },
+        { name: 'goods', text: '商品', icon: 'el-icon-s-goods' }
       ],
-      compShowList: [
-        { name: 'banner', text: '轮播图' },
-        { name: 'goods', text: '商品' },
-        { name: 'spread', text: '通告' }
-      ],
+      compShowList: [{ name: 'banner', text: '轮播图' }],
+      title: '这是header',
+      clickedCompId: null,
       // 是否正在拖动某元素
       isDragging: false,
       // 正在拖动的元素组件类型
@@ -87,6 +95,7 @@ export default {
     // 拖动结束
     handleDragEnd() {
       this.compShowList[this.currentaddCompIndex].isMoving = false
+      this.compShowList[this.currentaddCompIndex].id = this.$createRandomId()
       this.isDragging = false
       this.draggingCompType = null
     },
@@ -144,6 +153,8 @@ export default {
         }
         this.currentaddCompIndex = overCompIndex
         this.isDragging = true
+      } else {
+        //
       }
     },
     // 触发在 draggable-wrap 上的放置事件
@@ -151,6 +162,9 @@ export default {
       e.preventDefault()
       e.stopPropagation()
       this.isDragging = false
+    },
+    handleClick(compId) {
+      this.clickedCompId = compId
     }
   }
 }
@@ -161,33 +175,124 @@ export default {
 .hello {
   display: flex;
   height: 100vh;
-  aside {
-    border: 1px solid red;
-    width: 180px;
+  .complist {
+    // border: 1px solid red;
+    padding: 10px;
+    box-sizing: border-box;
+    width: 340px;
     ul {
-      padding: 0;
-      margin: 0;
-      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
       li {
-        padding: 20px;
-        border: 1px solid;
-        margin: 0;
-        list-style: none;
+        box-sizing: border-box;
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border-radius: 6px;
+        transition: all 0.3s;
+        cursor: pointer;
+        &:hover {
+          background: #efefef;
+        }
+        i {
+          font-size: 30px;
+        }
+        span {
+          display: inline-block;
+          padding-top: 8px;
+          font-size: 14px;
+        }
       }
     }
   }
-  main {
-    border: 1px solid green;
+  .platform-wrap {
+    background: #f7f8f9;
     width: 50%;
-    .draggable-item {
-      .item-content {
-        padding: 50px 0;
-        border: 1px solid rgba(166, 255, 0, 0.959);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .platform {
+      width: 375px;
+      height: 667px;
+      background-color: #fff;
+      .wxheader {
+        height: 64px;
+        background-image: url(../assets/imgs/wxheader.png);
+        background-repeat: no-repeat;
+        background-size: 375px auto;
+        position: relative;
+        span {
+          position: absolute;
+          top: 34px;
+          font-size: 14px;
+          font-weight: bold;
+          left: 50%;
+          transform: translateX(-50%);
+        }
       }
-    }
-    .dragging-hover,
-    .chosen {
-      border: solid 2px #3089dc !important;
+      .draggable-wrap {
+        height: 603px;
+        overflow-y: overlay;
+        &::-webkit-scrollbar {
+          width: 0px;
+          background-color: transparent;
+        }
+        &:hover {
+          overflow-y: overlay;
+          &::-webkit-scrollbar {
+            width: 5px;
+            background-color: transparent;
+          }
+          &::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+          }
+        }
+        .draggable-item {
+          // margin: 1px;
+          box-sizing: border-box;
+          position: relative;
+          .target-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 100;
+            border: none;
+            &:hover {
+              border: 1px dotted #155bd4;
+            }
+          }
+          .target-active {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            z-index: 100;
+            border: 1px solid #155bd4;
+          }
+          .item-content {
+            padding: 50px 0;
+          }
+        }
+        .dragging-hover {
+          height: 40px;
+          background-image: url('../assets/imgs/draggingbg.jpg');
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          span {
+            height: 20px;
+            display: inline-block;
+            font-size: 16px;
+            line-height: 20px;
+            padding: 5px 10px;
+            background-color: #fff;
+          }
+        }
+      }
     }
   }
 }
