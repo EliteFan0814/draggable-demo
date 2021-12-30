@@ -1,37 +1,92 @@
 <template>
-  <div class="hello">
+  <div class="operation-wrap">
     <!-- 左侧组件列表 -->
     <aside class="complist">
+      <div class="aside-title">组件列表</div>
       <ul>
-        <li v-for="item in compList" :key="item.id" draggable @dragstart="handleDragStart" @dragend="handleDragEnd"
-          :data-comp-type="item.name" :data-text="item.text">
-          <i :class="item.icon"></i>
-          <span>{{item.text}}</span>
+        <li
+          v-for="item in compList"
+          :key="item.id"
+          draggable
+          @dragstart="handleDragStart"
+          @dragend="handleDragEnd"
+          :data-comp-type="item.name"
+          :data-text="item.text"
+        >
+          <div>
+            <i :class="item.icon"></i>
+            <span>{{ item.text }}</span>
+          </div>
         </li>
       </ul>
     </aside>
     <!-- 中间组件预览排列 -->
     <main class="platform-wrap">
       <div class="platform">
-        <div class="wxheader"><span>{{title}}</span></div>
+        <div class="wxheader">
+          <span>{{ title }}</span>
+        </div>
         <div class="draggable-wrap" @dragover="handleDragOver" @drop="handleDrop">
-          <draggable v-model="compShowList" draggable=".draggable-item" :sort="true" :forceFallback="true"
-            animation="600">
-            <div class="draggable-item" v-for="(element,index) in compShowList" :data-index="index" :key="index"
-              @click="handleClick(element.id)">
-              <div class="target-hover"></div>
-              <div :class="{'target-active':clickedCompId === element.id}"></div>
+          <draggable
+            v-model="compShowList"
+            draggable=".draggable-item"
+            :sort="true"
+            :forceFallback="true"
+            animation="600"
+          >
+            <div
+              class="draggable-item inner-drag-item"
+              v-for="(element,index) in compShowList"
+              :data-index="index"
+              :key="index"
+              @click="handleClick(element.id)"
+            >
+              <!-- 拖拽 hover 样式 -->
+              <div class="target-hover inner-drag-item" :data-index="index"></div>
+              <!-- 拖拽 点击 样式 -->
+              <div
+                :class="{ 'target-active': clickedCompId === element.id, 'inner-drag-item': true }"
+                :data-index="index"
+              ></div>
               <template v-if="element.isMoving">
-                <div class="dragging-hover" :data-index="index"><span>组件放置区域</span></div>
+                <div class="dragging-hover" :data-index="index">
+                  <span>组件放置区域</span>
+                </div>
               </template>
               <template v-else>
-                <div class="item-content" :data-index="index"> {{element.text}}</div>
+                <component :is="element.name"></component>
               </template>
             </div>
           </draggable>
         </div>
       </div>
     </main>
+    <!-- 右侧个性化组件 -->
+    <aside class="configlist">
+      <div class="aside-title">组件个性化设置</div>
+      <div class="config-class">
+        <div class="division">
+          <span>搜索框内容</span>
+        </div>
+        <div class="input-class">
+          <van-cell-group>
+            <van-field v-model="value" label="提示文本：" placeholder="请输入提示文本" />
+            <van-field v-model="text" label="文本" />
+          </van-cell-group>
+        </div>
+      </div>
+      <div class="config-class">
+        <div class="division">
+          <span>搜索框内容</span>
+        </div>
+        <div class="input-class">
+          <van-cell-group>
+            <van-field v-model="value" label="提示文本：" placeholder="请输入提示文本" />
+            <van-field v-model="text" label="文本" />
+          </van-cell-group>
+        </div>
+      </div>
+    </aside>
   </div>
 </template>
 
@@ -50,12 +105,12 @@ export default {
   data() {
     return {
       compList: [
-        { name: 'search', text: '搜索', icon: 'el-icon-search' },
+        { name: 'van-search', text: '搜索', icon: 'el-icon-search' },
         { name: 'banner', text: '轮播图', icon: 'el-icon-picture' },
         { name: 'spread', text: '通告', icon: 'el-icon-message-solid' },
         { name: 'goods', text: '商品', icon: 'el-icon-s-goods' }
       ],
-      compShowList: [{ name: 'banner', text: '轮播图' }],
+      compShowList: [{ name: 'van-search', text: '轮播图' }],
       title: '这是header',
       clickedCompId: null,
       // 是否正在拖动某元素
@@ -64,19 +119,21 @@ export default {
       draggingCompType: null,
       draggingCompText: null,
       // 当前添加的元素在compShowList的角标
-      currentaddCompIndex: 0
+      currentaddCompIndex: 0,
+      value:'',
+      text:'',
     }
   },
-  // computed: {
-  //   compShowList: {
-  //     get() {
-  //       return this.$store.state.compShowList
-  //     },
-  //     set(value) {
-  //       this.$store.commit('updateList', value)
-  //     }
-  //   }
-  // },
+  computed: {
+    // compShowList: {
+    //   get() {
+    //     return this.$store.state.compShowList
+    //   },
+    //   set(value) {
+    //     this.$store.commit('updateList', value)
+    //   }
+    // }
+  },
   watch: {
     myArray(newvalue, oldvalue) {
       // console.log(newvalue)
@@ -90,7 +147,6 @@ export default {
     handleDragStart(e) {
       this.draggingCompType = e.target.dataset.compType
       this.draggingCompText = e.target.dataset.text
-      // e.dataTransfer.setData('comp', e.target.dataset.compType)
     },
     // 拖动结束
     handleDragEnd() {
@@ -113,9 +169,8 @@ export default {
           this.isDragging = true
           this.compShowList.push(addingComp)
         }
-        // 如果在包裹器内添加的元素上浮动 [draggable-item, dragging-hover, item-content]
-        // } else if (targetDiv === 'draggable-item') {
-      } else if (['draggable-item', 'dragging-hover', 'item-content'].includes(targetDiv)) {
+        // 如果在包裹器内添加的元素上浮动  inner-drag-item
+      } else if (targetDiv.includes(' inner-drag-item')) {
         const addingComp = { name: this.draggingCompType, isMoving: true, text: this.draggingCompText }
         // 获取浮动在内部元素的位置信息 距离顶部距离、目标元素高度、目标元素排序
         let [y, overCompHeight, overCompIndex] = [e.offsetY, e.target.offsetHeight, +e.target.dataset.index]
@@ -172,46 +227,63 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-.hello {
+.aside-title {
+  padding: 5px 0 20px;
+  font-weight: bold;
+}
+.operation-wrap {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   height: 100vh;
+  padding: 10px;
   .complist {
-    // border: 1px solid red;
-    padding: 10px;
     box-sizing: border-box;
     width: 340px;
+    height: 100%;
+    color: #323233;
     ul {
       display: flex;
       flex-wrap: wrap;
       li {
-        box-sizing: border-box;
-        width: 100px;
+        width: 33.33%;
         display: flex;
-        flex-direction: column;
-        padding: 10px;
-        border-radius: 6px;
-        transition: all 0.3s;
-        cursor: pointer;
-        &:hover {
-          background: #efefef;
-        }
-        i {
-          font-size: 30px;
-        }
-        span {
-          display: inline-block;
-          padding-top: 8px;
-          font-size: 14px;
+        justify-content: center;
+        align-items: center;
+        > div {
+          width: 80px;
+          height: 80px;
+          // border: 1px solid red;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          padding: 10px;
+          border-radius: 6px;
+          transition: all 0.3s;
+          cursor: pointer;
+          &:hover {
+            background: #efefef;
+          }
+          i {
+            font-size: 35px;
+          }
+          span {
+            display: inline-block;
+            padding-top: 8px;
+            font-size: 14px;
+          }
         }
       }
     }
   }
   .platform-wrap {
     background: #f7f8f9;
-    width: 50%;
+    flex-grow: 1;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
     .platform {
       width: 375px;
       height: 667px;
@@ -274,12 +346,12 @@ export default {
             border: 1px solid #155bd4;
           }
           .item-content {
-            padding: 50px 0;
+            // padding: 50px 0;
           }
         }
         .dragging-hover {
           height: 40px;
-          background-image: url('../assets/imgs/draggingbg.jpg');
+          background-image: url("../assets/imgs/draggingbg.jpg");
           display: flex;
           align-items: center;
           justify-content: center;
@@ -291,6 +363,29 @@ export default {
             padding: 5px 10px;
             background-color: #fff;
           }
+        }
+      }
+    }
+  }
+  .configlist {
+    padding: 10px;
+    box-sizing: border-box;
+    width: 340px;
+    height: 100%;
+    .division {
+      padding: 10px 12px;
+      background: #e8f0fb40;
+      font-size: 14px;
+      color: #323233;
+      text-align: left;
+      span {
+        box-sizing: border-box;
+        &::before {
+          content: ".";
+          width: 3px;
+          height: 10px;
+          margin-right: 8px;
+          background: #155bd4;
         }
       }
     }
