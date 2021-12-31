@@ -4,17 +4,16 @@
     <div class="aside-title">组件列表</div>
     <ul>
       <li
-        v-for="item in compList"
-        :key="item.id"
+        v-for="(item,key) in $compConfigListObj"
+        :key="key"
         draggable
         @dragstart="handleDragStart"
         @dragend="handleDragEnd"
-        :data-comp-type="item.name"
-        :data-text="item.text"
+        :data-comp-type="item.compName"
       >
         <div>
           <i :class="item.icon"></i>
-          <span>{{ item.text }}</span>
+          <span>{{ item.name }}</span>
         </div>
       </li>
     </ul>
@@ -27,23 +26,26 @@ import { mapGetters, mapMutations } from 'vuex'
 export default {
   data() {
     return {
-      compList: [
-        { name: 'van-search', text: '搜索', icon: 'el-icon-search' },
-        { name: 'banner', text: '轮播图', icon: 'el-icon-picture' },
-        { name: 'spread', text: '通告', icon: 'el-icon-message-solid' },
-        { name: 'goods', text: '商品', icon: 'el-icon-s-goods' }
-      ],
     }
   },
   computed: {
     ...mapGetters(['isDragging', 'draggingCompType'])
   },
   methods: {
-    ...mapMutations(['changeCompType','handleDragEnd']),
+    ...mapMutations(['changeCompType', 'setDraggingComp', 'dragEnd']),
     // 拖动开始
     handleDragStart(e) {
       this.changeCompType(e.target.dataset.compType)
+      // 生成一个当前拖拽对象的实例
+      const tempCopy = this.$deepCopy(this.$compConfigListObj[e.target.dataset.compType])
+      tempCopy.isMoving = true
+      this.setDraggingComp(tempCopy)
+      console.log(this.$store.getters.draggingComp)
     },
+    handleDragEnd() {
+      this.dragEnd()
+      console.log(this.$store.getters.compShowList)
+    }
   },
 }
 </script>

@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import GlobalTools from '@/utils/globaltools'
+// import GlobalTools from '@/utils/globaltools'
 Vue.use(Vuex)
-Vue.use(GlobalTools)
+// Vue.use(GlobalTools)
 
 export default new Vuex.Store({
   state: {
@@ -10,7 +10,8 @@ export default new Vuex.Store({
     isDragging: false,
     // 正在拖动的组件类型
     draggingCompType: null,
-    draggingCompText: null,
+    // 要拖拽插入的组件实例
+    draggingComp: null,
     // 当前添加的元素在compShowList的角标
     currentaddCompIndex: 0,
     compShowList: [],
@@ -19,7 +20,7 @@ export default new Vuex.Store({
   getters: {
     isDragging: (state) => state.isDragging,
     draggingCompType: (state) => state.draggingCompType,
-    draggingCompText: (state) => state.draggingCompText,
+    draggingComp: (state) => state.draggingComp,
     currentaddCompIndex: (state) => state.currentaddCompIndex,
     compShowList: (state) => state.compShowList,
     tempCurrentaddCompList: (state) => state.tempCurrentaddCompList
@@ -31,6 +32,10 @@ export default new Vuex.Store({
     // 拖动开始，设置拖动的组件类型
     changeCompType(state, value) {
       state.draggingCompType = value
+    },
+    // 设置拖动的组件实例对象
+    setDraggingComp(state, value) {
+      state.draggingComp = value
     },
     // 设置拖拽状态
     setDragStatus(state, value) {
@@ -54,14 +59,17 @@ export default new Vuex.Store({
       state.compShowList.splice(overCompIndex, index, addingComp)
     },
     // 拖动结束
-    handleDragEnd(state) {
-      state.compShowList[state.currentaddCompIndex].isMoving = false
-      // state.compShowList[state.currentaddCompIndex].id = Vue.prototype.$createRandomId()
-      state.compShowList[state.currentaddCompIndex].id = Number(
-        Math.random().toString().slice(2) + Date.now()
-      ).toString(36)
-      state.isDragging = false
-      state.draggingCompType = null
+    dragEnd(state) {
+      // 判断是否成功拖入
+      if (state.compShowList.length) {
+        // 当前组件插入位置
+        const nowInsertIndex = state.currentaddCompIndex
+        state.compShowList[nowInsertIndex].isMoving = false
+        state.compShowList[nowInsertIndex].id = Vue.prototype.$createRandomId()
+        state.isDragging = false
+        state.draggingCompType = null
+        state.draggingComp = null
+      }
     }
   },
   actions: {},
