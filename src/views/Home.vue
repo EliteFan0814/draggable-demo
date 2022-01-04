@@ -6,22 +6,22 @@
     <div class="platform-wrap">
       <PlatformDeskVue></PlatformDeskVue>
     </div>
-    <div class="config-list-wrap">
+    <!-- <div class="config-list-wrap">
       <ConfigListVue></ConfigListVue>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
 import CompListVue from "../components/CompList.vue"
 import PlatformDeskVue from "../components/PlatformDesk.vue"
-import ConfigListVue from "../components/ConfigList.vue"
+// import ConfigListVue from "../components/ConfigList.vue"
 export default {
   components: {
     CompListVue,
     PlatformDeskVue,
-    ConfigListVue
-  }
+    // ConfigListVue
+  },
 }
 </script>
 
@@ -40,9 +40,9 @@ export default {
     flex-grow: 1;
     height: 100%;
   }
-  .config-list-wrap {
-    width: 340px;
-    height: 100%;
-  }
+  // .config-list-wrap {
+  //   width: 340px;
+  //   height: 100%;
+  // }
 }
 </style>

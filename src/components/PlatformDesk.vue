@@ -1,48 +1,61 @@
 <template>
-  <div class="platform-desk-wrap">
-    <div class="platform">
-      <div class="wxheader">
-        <span>{{ title }}</span>
-      </div>
-      <div class="draggable-wrap" @dragover="handleDragOver" @drop="handleDrop">
-        <draggable
-          v-model="compShowList"
-          draggable=".draggable-item"
-          :sort="true"
-          :forceFallback="true"
-          animation="600"
-        >
-          <div class="draggalbe-desk">
-            <div
-              class="draggable-item inner-drag-item"
-              v-for="(element,index) in compShowList"
-              :data-index="index"
-              :key="index"
-              @click="handleClick(element.id)"
-            >
-              <!-- 拖拽 hover 样式 -->
-              <div class="target-hover inner-drag-item" :data-index="index"></div>
-              <!-- 拖拽 点击 样式 -->
-              <div
-                :class="{ 'target-active': clickedCompId === element.id, 'inner-drag-item': true }"
-                :data-index="index"
-              ></div>
-              <template v-if="element.isMoving">
-                <div class="dragging-hover" :data-index="index">
-                  <span>组件放置区域</span>
-                </div>
-              </template>
-              <template v-else>
-                <div class="comp-operation">
-                  <div class="operate">删dddd除</div>
-                  <!-- <div style="width: 375px;height:200px;border:1px solid red"></div> -->
-                  <component :is="element.compName"></component>
-                </div>
-              </template>
-            </div>
+  <div class="plateform-desk">
+    <div class="platform-desk-wrap">
+      <div class="platform">
+        <div class="wxheader-wrap">
+          <div class="wxheader">
+            <span>{{ title }}</span>
           </div>
-        </draggable>
+        </div>
+        <div class="draggable-wrap inner-drag-wrap" @dragover="handleDragOver" @drop="handleDrop">
+          <div class="draggalbe-desk inner-drag-wrap">
+            <draggable
+              v-model="compShowList"
+              draggable=".draggable-item"
+              :sort="true"
+              :forceFallback="true"
+              animation="600"
+            >
+              <div
+                class="draggable-item inner-drag-item"
+                v-for="(element,index) in compShowList"
+                :data-index="index"
+                :key="index"
+                @click="handleSelect(element.id, element)"
+              >
+                <!-- 拖拽 hover 样式 -->
+                <div class="target-hover inner-drag-item" :data-index="index"></div>
+                <!-- 拖拽 点击 样式 -->
+                <div
+                  :class="{ 'target-active': clickedCompId === element.id, 'inner-drag-item': true }"
+                  :data-index="index"
+                ></div>
+                <template v-if="element.isMoving">
+                  <div class="dragging-hover" :data-index="index">
+                    <span>组件放置区域</span>
+                  </div>
+                </template>
+                <template v-else>
+                  <div class="comp-operation">
+                    <div class="operate">
+                      <i
+                        v-if="clickedCompId === element.id"
+                        class="el-icon-delete-solid"
+                        @click.stop="handleDelete(index)"
+                      ></i>
+                      <span v-else>{{ element.name }}</span>
+                    </div>
+                    <component :is="element.compName" :configData="element.configData"></component>
+                  </div>
+                </template>
+              </div>
+            </draggable>
+          </div>
+        </div>
       </div>
+    </div>
+    <div class="config-list-wrap">
+      <ConfigListVue :config="selectedCompConfig"></ConfigListVue>
     </div>
   </div>
 </template>
@@ -50,17 +63,18 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import draggable from 'vuedraggable'
-import CompSearchVue from '../componentsCustom/CompSearch/index.vue'
+import ConfigListVue from "../components/ConfigList.vue"
 
 export default {
   components: {
     draggable,
-    CompSearchVue
+    ConfigListVue
   },
   data() {
     return {
       title: '这是header',
       clickedCompId: null,
+      selectedCompConfig: null
     }
   },
   computed: {
@@ -75,7 +89,7 @@ export default {
     ...mapGetters(['isDragging', 'draggingCompType', 'draggingComp', 'currentaddCompIndex', 'tempCurrentaddCompList'])
   },
   methods: {
-    ...mapMutations(['setDragStatus', 'setCurrentaddCompIndex', 'getUnSetComp', 'addToCompShowList', 'addToCompShowListIndex']),
+    ...mapMutations(['setDragStatus', 'setCurrentaddCompIndex', 'getUnSetComp', 'addToCompShowList', 'addToCompShowListIndex', 'deleteComp']),
     // 在某元素上方拖动
     handleDragOver(e) {
       e.preventDefault()
@@ -83,7 +97,8 @@ export default {
       // 获取在哪个元素上方拖动
       const targetDiv = e.target.className
       // 如果在包裹器内浮动
-      if (targetDiv === 'draggable-wrap') {
+      // if (targetDiv === 'draggable-wrap') {
+      if (targetDiv.includes('inner-drag-wrap')) {
         if (!this.isDragging) {
           this.setCurrentaddCompIndex(this.compShowList.length)
           this.setDragStatus(true)
@@ -137,141 +152,173 @@ export default {
       e.stopPropagation()
       this.setDragStatus(false)
     },
-    handleClick(compId) {
+    // 点击某组件进行详细设置
+    handleSelect(compId, config) {
       this.clickedCompId = compId
+      this.selectedCompConfig = config
+    },
+    // 删除元素
+    handleDelete(index) {
+      this.deleteComp(index)
+      this.selectedCompConfig = null
     }
   },
 }
 </script>
 
 <style lang="scss" scoped>
-.platform-desk-wrap {
-  background: #f7f8f9;
-  height: 100%;
+.plateform-desk {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  .platform {
-    height: 667px;
-    background-color: #fff;
-    .wxheader {
-      width: 375px;
-      height: 64px;
-      background-image: url(../assets/imgs/wxheader.png);
-      background-repeat: no-repeat;
-      background-size: 375px auto;
-      position: relative;
-      span {
-        position: absolute;
-        top: 34px;
-        font-size: 14px;
-        font-weight: bold;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-    }
-    .draggable-wrap {
-      height: 603px;
-      // overflow-y: overlay;
-      &::-webkit-scrollbar {
-        width: 0px;
-        background-color: transparent;
-      }
-      &:hover {
-        // overflow-y: overlay;
-        &::-webkit-scrollbar {
-          width: 5px;
-          background-color: transparent;
-        }
-        &::-webkit-scrollbar-thumb {
-          background-color: #ccc;
+  height: 100%;
+
+  .platform-desk-wrap {
+    background: #f7f8f9;
+    flex-grow: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    .platform {
+      height: 667px;
+      background-color: #fff;
+      .wxheader-wrap {
+        width: 500px;
+        background-color: #f7f8f9;
+        .wxheader {
+          width: 375px;
+          height: 64px;
+          background-image: url(../assets/imgs/wxheader.png);
+          background-repeat: no-repeat;
+          background-size: 375px auto;
+          position: relative;
+          span {
+            position: absolute;
+            top: 34px;
+            font-size: 14px;
+            font-weight: bold;
+            left: 50%;
+            transform: translateX(-50%);
+          }
         }
       }
-      .draggalbe-desk {
-        border: 1px solid red;
-        width: 575px;
+      .draggable-wrap {
+        width: 500px;
+        height: 603px;
         overflow-y: overlay;
         background-color: #f7f8f9;
-
+        // overflow-y: overlay;
         &::-webkit-scrollbar {
           width: 0px;
           background-color: transparent;
         }
-        .draggable-item {
-          box-sizing: border-box;
-          position: relative;
-          .target-hover {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            z-index: 100;
-            border: none;
-            &:hover {
-              border: 1px dotted #155bd4;
-            }
+        &:hover {
+          // overflow-y: overlay;
+          &::-webkit-scrollbar {
+            width: 5px;
+            background-color: transparent;
           }
-          .target-active {
-            position: absolute;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            z-index: 100;
-            border: 1px solid #155bd4;
+          &::-webkit-scrollbar-thumb {
+            background-color: #ccc;
           }
-          .comp-operation {
+        }
+        .draggalbe-desk {
+          // border: 1px solid green;
+          width: 375px;
+          height: 603px;
+          background-color: #fff;
+
+          &::-webkit-scrollbar {
+            width: 0px;
+            background-color: transparent;
+          }
+          .draggable-item {
+            box-sizing: border-box;
             position: relative;
-            .operate {
+            .target-hover {
               position: absolute;
-              right: -86px;
               top: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 80px;
-              height: 24px;
-              font-size: 12px;
-              color: #333;
-              background: #ffffff;
-              box-shadow: 0 0.05333333rem 0.10666667rem rgb(0 0 0 / 10%);
-              &::after {
-                content: "";
+              left: 0;
+              bottom: 0;
+              right: 0;
+              z-index: 100;
+              border: none;
+              &:hover {
+                border: 1px dotted #155bd4;
+              }
+            }
+            .target-active {
+              position: absolute;
+              top: 0;
+              left: 0;
+              bottom: 0;
+              right: 0;
+              z-index: 100;
+              border: 1px solid #155bd4;
+            }
+            .comp-operation {
+              position: relative;
+              .operate {
                 position: absolute;
-                right: 100%; /*no*/
-                top: 7px; /*no*/
-                width: 0; /*no*/
-                height: 0; /*no*/
-                border-width: 5px; /*no*/
-                border-style: solid;
-                border-color: transparent;
-                margin-bottom: -1px; /*no*/
-                border-right-width: 5px; /*no*/
-                border-right-color: currentColor;
-                color: #fff;
+                right: -86px;
+                top: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 80px;
+                height: 24px;
+                font-size: 14px;
+                color: #333;
+                background: #ffffff;
+                box-shadow: 0 0.05333333rem 0.10666667rem rgb(0 0 0 / 10%);
+                &::after {
+                  content: "";
+                  position: absolute;
+                  right: 100%; /*no*/
+                  top: 7px; /*no*/
+                  width: 0; /*no*/
+                  height: 0; /*no*/
+                  border-width: 5px; /*no*/
+                  border-style: solid;
+                  border-color: transparent;
+                  margin-bottom: -1px; /*no*/
+                  border-right-width: 5px; /*no*/
+                  border-right-color: currentColor;
+                  color: #fff;
+                }
+                > i {
+                  font-size: 20px;
+                  color: #969799;
+                  &:hover {
+                    cursor: pointer;
+                    color: #747474;
+                  }
+                }
               }
             }
           }
-        }
-        .dragging-hover {
-          height: 40px;
-          background-image: url("../assets/imgs/draggingbg.jpg");
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          span {
-            height: 20px;
-            display: inline-block;
-            font-size: 16px;
-            line-height: 20px;
-            padding: 5px 10px;
-            background-color: #fff;
+          .dragging-hover {
+            height: 40px;
+            background-image: url("../assets/imgs/draggingbg.jpg");
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            span {
+              height: 20px;
+              display: inline-block;
+              font-size: 16px;
+              line-height: 20px;
+              padding: 5px 10px;
+              background-color: #fff;
+            }
           }
         }
       }
     }
+  }
+  .config-list-wrap {
+    width: 340px;
+    height: 100%;
   }
 }
 </style>

@@ -1,10 +1,16 @@
 <template>
   <div class="comp-serach">
-    <van-search></van-search>
+    <van-search
+      v-model="value"
+      :placeholder="configData.holder.children.holderInfo.value"
+      :input-align="configData.holder.children.alignment.value"
+    ></van-search>
   </div>
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
+
 export default {
   name: 'CompSearch',
   props: {
@@ -12,6 +18,14 @@ export default {
       type: Object,
       required: false,
     }
+  },
+  data() {
+    return {
+      value: ''
+    }
+  },
+  computed: {
+    ...mapGetters(['compShowList'])
   }
 }
 </script>

@@ -14,8 +14,12 @@ export default new Vuex.Store({
     draggingComp: null,
     // 当前添加的元素在compShowList的角标
     currentaddCompIndex: 0,
+    // 生成之后的页面组件列表
     compShowList: [],
-    tempCurrentaddCompList: null
+    // 未放置完成的组件
+    tempCurrentaddCompList: null,
+    // 当前选中组件的配置信息
+    selectedCompConfig: null
   },
   getters: {
     isDragging: (state) => state.isDragging,
@@ -23,7 +27,8 @@ export default new Vuex.Store({
     draggingComp: (state) => state.draggingComp,
     currentaddCompIndex: (state) => state.currentaddCompIndex,
     compShowList: (state) => state.compShowList,
-    tempCurrentaddCompList: (state) => state.tempCurrentaddCompList
+    tempCurrentaddCompList: (state) => state.tempCurrentaddCompList,
+    selectedCompConfig: (state) => state.selectedCompConfig
   },
   mutations: {
     updateCompShowList(state, value) {
@@ -45,7 +50,6 @@ export default new Vuex.Store({
     setCurrentaddCompIndex(state, value) {
       state.currentaddCompIndex = value
     },
-    //
     // 取出未放置完成的元素
     getUnSetComp(state) {
       state.tempCurrentaddCompList = state.compShowList.splice(state.currentaddCompIndex, 1)
@@ -70,6 +74,10 @@ export default new Vuex.Store({
         state.draggingCompType = null
         state.draggingComp = null
       }
+    },
+    // 删除某一个元素
+    deleteComp(state, value) {
+      state.compShowList.splice(value, 1)
     }
   },
   actions: {},

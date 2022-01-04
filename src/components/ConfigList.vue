@@ -3,39 +3,41 @@
     <!-- 右侧个性化组件 -->
     <aside class="configlist">
       <div class="aside-title">组件个性化设置</div>
-      <div class="config-class">
-        <div class="division">
-          <span>搜索框内容</span>
+      <template v-if="configData">
+        <div v-for="(item,name) in configData" :key="name" class="config-class">
+          <div class="division">
+            <span>{{ item.label }}</span>
+          </div>
+          <div
+            v-for="(configItem,configItemName) in item.children"
+            :key="configItemName"
+            class="input-class"
+          >
+            <div class="config-item">
+              <component :is="configItem.component" :configInfo="configItem"></component>
+            </div>
+          </div>
         </div>
-        <div class="input-class">
-          <van-cell-group>
-            <van-field v-model="value" label="提示文本：" placeholder="请输入提示文本" />
-            <van-field v-model="text" label="文本" />
-          </van-cell-group>
-        </div>
-      </div>
-      <div class="config-class">
-        <div class="division">
-          <span>搜索框内容</span>
-        </div>
-        <div class="input-class">
-          <van-cell-group>
-            <van-field v-model="value" label="提示文本：" placeholder="请输入提示文本" />
-            <van-field v-model="text" label="文本" />
-          </van-cell-group>
-        </div>
-      </div>
+      </template>
     </aside>
   </div>
 </template>
  <script>
 export default {
+  props: ['config'],
   data() {
     return {
       value: '',
       text: '',
+      configData: null
     }
-  }
+  },
+  watch: {
+    config(newValue) {
+      console.log(newValue)
+      this.configData = newValue ? newValue.configData : null
+    }
+  },
 }
 </script>
 <style lang="scss" scoped>
@@ -65,6 +67,10 @@ export default {
           background: #155bd4;
         }
       }
+    }
+    .config-item {
+      margin: 0 6px;
+      border-bottom: 1px solid #ccc;
     }
   }
 }

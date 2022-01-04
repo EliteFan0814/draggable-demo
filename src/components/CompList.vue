@@ -40,11 +40,9 @@ export default {
       const tempCopy = this.$deepCopy(this.$compConfigListObj[e.target.dataset.compType])
       tempCopy.isMoving = true
       this.setDraggingComp(tempCopy)
-      console.log(this.$store.getters.draggingComp)
     },
     handleDragEnd() {
       this.dragEnd()
-      console.log(this.$store.getters.compShowList)
     }
   },
 }

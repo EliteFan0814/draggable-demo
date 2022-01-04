@@ -1,6 +1,0 @@
-{
-  "name": "搜索",
-  "icon": "el-icon-search",
-  "configData": [{ "key": "提示文本", "value": "请输入关键词" }],
-  "configStyle": {}
-}
