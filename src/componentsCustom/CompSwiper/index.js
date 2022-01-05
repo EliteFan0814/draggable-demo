@@ -2,27 +2,45 @@ export default {
   name: '轮播图',
   icon: 'el-icon-picture',
   configData: {
-    holder: {
-      label: '搜索框内容',
+    swiper: {
+      label: '轮播图设置',
       type: 'object',
       children: {
-        holderInfo: {
-          label: '提示文本',
-          type: 'string',
-          value: '请输入搜索关键字',
-          placeholder: '请输入提示文本'
+        autoplay: {
+          label: '自动轮播',
+          component: 'ConfigSwitch',
+          value: true,
+          linkageKey: 'autoplayTime'
         },
-        holderInfo2: {
-          label: '提示文本2',
-          type: 'string',
-          value: '',
-          placeholder: '请输入关键字'
+        autoplayTime: {
+          label: '间隔时间',
+          component: 'ConfigInput',
+          value: 3000,
+          inputType: 'number',
+          disabled: false
+        },
+        loop: {
+          label: '开启循环',
+          component: 'ConfigSwitch',
+          value: true
+        },
+        indicators: {
+          label: '开启指示器',
+          component: 'ConfigSwitch',
+          value: true,
+          linkageKey: 'indicatorColor'
+        },
+        indicatorColor: {
+          label: '指示器颜色',
+          component: 'ConfigColorPick',
+          value: '#fff',
+          disabled: false
         }
       }
     },
-    layout:{
-      label:'搜索框布局',
-      type:'object'
+    layout: {
+      label: '搜索框布局',
+      type: 'object'
     }
   },
   configStyle: {}

@@ -3,35 +3,25 @@
     <div class="label">
       <div class="label-name">{{ configInfo.label }}</div>：
     </div>
-    <van-field
+    <el-color-picker
       v-model="configInfo.value"
-      :placeholder="configInfo.placeholder"
-      :type="configInfo.inputType"
+      show-alpha
+      size="small"
       :disabled="configInfo.disabled"
-      input-align="right"
-    />
+    ></el-color-picker>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'ConfigInput',
+  name: 'ConfigColorPick',
   props: ['configInfo'],
-  methods: {
-    handleClear() {
-      this.configInfo.value = ''
-    }
-  },
 }
 </script>
 
 <style lang="scss" scoped>
 @import "@/assets/scss/common.scss";
 .config-layout {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
   .van-field {
     padding: 0;
     width: 200px;

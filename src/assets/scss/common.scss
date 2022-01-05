@@ -1,0 +1,28 @@
+// 右侧配置属性名样式
+.config-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  .label {
+    text-align: left;
+    width: 75px;
+    padding-right: 10px;
+    font-size: 12px;
+    line-height: 20px;
+    color: #646566;
+    display: flex;
+    .label-name {
+      width: 75px; /* 这里一定要使用 width 不能使用 min-width max-width */
+      height: 20px; /* 一定要限定高度，高度和 line-height 一致时为上下居中显示 */
+      text-align: justify;
+      text-align-last: justify;
+      text-justify: inter-ideograph;
+      &::after {
+        display: inline-block;
+        content: '';
+        width: 100%;
+      }
+    }
+  }
+}

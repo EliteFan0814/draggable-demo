@@ -5,17 +5,17 @@
       <div class="aside-title">组件个性化设置</div>
       <template v-if="configData">
         <div v-for="(item,name) in configData" :key="name" class="config-class">
+          <!-- 分组类别 -->
           <div class="division">
             <span>{{ item.label }}</span>
           </div>
+          <!-- 选项值列表 -->
           <div
+            class="config-item"
             v-for="(configItem,configItemName) in item.children"
             :key="configItemName"
-            class="input-class"
           >
-            <div class="config-item">
-              <component :is="configItem.component" :configInfo="configItem"></component>
-            </div>
+            <component :is="configItem.component" :configInfo="configItem" :configInfoParent="item"></component>
           </div>
         </div>
       </template>
@@ -45,6 +45,10 @@ export default {
   padding: 5px 0 20px;
   font-weight: bold;
 }
+.config-class {
+  // border: 1px solid red;
+  // margin-bottom: 5px;
+}
 .config-list-wrap {
   width: 340px;
   height: 100%;
@@ -71,6 +75,9 @@ export default {
     .config-item {
       margin: 0 6px;
       border-bottom: 1px solid #ccc;
+      &:last-child {
+        border-bottom: 1px solid transparent;
+      }
     }
   }
 }

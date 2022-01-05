@@ -1,6 +1,8 @@
 <template>
   <div class="config-layout">
-    <div class="label">{{ configInfo.label }}</div>
+    <div class="label">
+      <div class="label-name">{{ configInfo.label }}</div>：
+    </div>
     <div class="btn-list">
       <div
         v-for="(item) in configInfo.selectList"
@@ -26,15 +28,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  @import '@/assets/scss/common.scss';
 .config-layout {
-  display: flex;
-  align-items: center;
-  padding: 10px 0;
-  .label {
-    padding-right: 15px;
-    font-size: 14px;
-    color: #646566;
-  }
   .btn-list {
     display: flex;
     font-size: 14px;
