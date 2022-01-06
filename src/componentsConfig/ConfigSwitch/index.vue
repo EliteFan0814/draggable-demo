@@ -1,9 +1,20 @@
 <template>
-  <div class="config-layout">
-    <div class="label">
-      <div class="label-name">{{ configInfo.label }}</div>：
+  <div>
+    <div class="config-layout">
+      <div class="label">
+        <div class="label-name">{{ configInfo.label }}</div>：
+      </div>
+      <van-switch v-model="configInfo.value" size="20px" @change="handleChange" />
     </div>
-    <van-switch v-model="configInfo.value" size="20px" @change="handleChange" />
+    <!-- <template v-if="configInfo.haveChildren">
+      <div
+        class="config-item"
+        v-for="(configItem,configItemName) in configInfo.children"
+        :key="configItemName"
+      >
+        <component :is="configItem.component" :configInfo="configItem"></component>
+      </div>
+    </template>-->
   </div>
 </template>
 

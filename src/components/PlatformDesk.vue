@@ -2,6 +2,17 @@
   <div class="plateform-desk">
     <div class="platform-desk-wrap">
       <div class="platform">
+        <div class="preview">
+          <el-tooltip :content="preview ? '关闭预览' : '打开预览'" placement="right" effect="light">
+            <el-button
+              type="primary"
+              icon="el-icon-view"
+              circle
+              @click="handleShowPreview"
+              size="mini"
+            ></el-button>
+          </el-tooltip>
+        </div>
         <div class="wxheader-wrap">
           <div class="wxheader">
             <span>{{ title }}</span>
@@ -24,9 +35,10 @@
                 @click="handleSelect(element.id, element)"
               >
                 <!-- 拖拽 hover 样式 -->
-                <div class="target-hover inner-drag-item" :data-index="index"></div>
+                <div v-if="!preview" class="target-hover inner-drag-item" :data-index="index"></div>
                 <!-- 拖拽 点击 样式 -->
                 <div
+                  v-if="!preview"
                   :class="{ 'target-active': clickedCompId === element.id, 'inner-drag-item': true }"
                   :data-index="index"
                 ></div>
@@ -37,7 +49,7 @@
                 </template>
                 <template v-else>
                   <div class="comp-operation">
-                    <div class="operate">
+                    <div v-if="!preview" class="operate">
                       <i
                         v-if="clickedCompId === element.id"
                         class="el-icon-delete-solid"
@@ -74,7 +86,8 @@ export default {
     return {
       title: '这是header',
       clickedCompId: null,
-      selectedCompConfig: null
+      selectedCompConfig: null,
+      preview: false
     }
   },
   computed: {
@@ -90,6 +103,10 @@ export default {
   },
   methods: {
     ...mapMutations(['setDragStatus', 'setCurrentaddCompIndex', 'getUnSetComp', 'addToCompShowList', 'addToCompShowListIndex', 'deleteComp']),
+    //
+    handleShowPreview() {
+      this.preview = !this.preview
+    },
     // 在某元素上方拖动
     handleDragOver(e) {
       e.preventDefault()
@@ -170,7 +187,6 @@ export default {
 .plateform-desk {
   display: flex;
   height: 100%;
-
   .platform-desk-wrap {
     background: #f7f8f9;
     flex-grow: 1;
@@ -179,9 +195,17 @@ export default {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+
     .platform {
+      // border: 1px solid red;
+      position: relative;
       height: 667px;
       background-color: #fff;
+      .preview {
+        position: absolute;
+        top: 0px;
+        right: 65px;
+      }
       .wxheader-wrap {
         width: 500px;
         background-color: #f7f8f9;
@@ -235,6 +259,7 @@ export default {
           .draggable-item {
             box-sizing: border-box;
             position: relative;
+            cursor: grab;
             .target-hover {
               position: absolute;
               top: 0;
