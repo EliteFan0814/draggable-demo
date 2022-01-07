@@ -2,7 +2,7 @@ export default {
   name: '图文导航',
   icon: 'el-icon-menu',
   configData: {
-    notice: {
+    settings: {
       label: '导航栏布局设置',
       type: 'object',
       children: {
@@ -21,9 +21,9 @@ export default {
             pageRowNum: {
               label: '每页行数',
               component: 'ConfigSelect',
-              value: 1,
+              showValueList: ['slideMultify'], //关联父元素值在此范围内则可用
+              value: 2,
               selectList: [
-                { label: '1行', value: 1 },
                 { label: '2行', value: 2 },
                 { label: '3行', value: 3 }
               ],
@@ -34,12 +34,17 @@ export default {
         singleNum: {
           label: '每行个数',
           component: 'ConfigSelect',
-          value: '25%',
+          // value: { value: '25%', numValue: 4 },
+          value: 25,
           selectList: [
-            { label: '3个', value: '33.33%' },
-            { label: '4个', value: '25%' },
-            { label: '5个', value: '20%' },
-            { label: '6个', value: '16.67%' }
+            { label: '3个', value: 33.33 },
+            { label: '4个', value: 25 },
+            { label: '5个', value: 20 },
+            { label: '6个', value: 16.67 }
+            // { label: '3个', value: { value: '33.33%', numValue: 3 } },
+            // { label: '4个', value: { value: '25%', numValue: 4 } },
+            // { label: '5个', value: { value: '20%', numValue: 5 } },
+            // { label: '6个', value: { value: '16.67%', numValue: 6 } }
           ]
         },
         routerForm: {

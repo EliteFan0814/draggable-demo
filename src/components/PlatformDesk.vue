@@ -257,6 +257,7 @@ export default {
             background-color: transparent;
           }
           .draggable-item {
+            min-height: 24px;
             box-sizing: border-box;
             position: relative;
             cursor: grab;

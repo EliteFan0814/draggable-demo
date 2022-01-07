@@ -13,6 +13,7 @@
         >{{ item.label }}</div>
       </div>
     </div>
+    <!-- 如果有联动配置 -->
     <template v-if="configInfo.haveChildren">
       <div
         class="config-item"
@@ -37,13 +38,16 @@ export default {
   methods: {
     handleSelect(value) {
       this.configInfo.value = value
-      console.log(this.$store.getters.compShowList)
-      if (this.configInfo.linkageKey) {
-        // 如果不是固定模式，则显示设置每页行数
-        if (this.configInfo.value !== 'fixed') {
-          this.configInfo.children[this.configInfo.linkageKey].disabled = false
+      // 所关联的子元素的key值
+      const linkageKey = this.configInfo.linkageKey || false
+      if (linkageKey) {
+        // 获取关联的子对象信息
+        const linkChildObj = this.configInfo.children[linkageKey]
+        // 根据子元素的显示值判断是否显示此子元素配置项
+        if (linkChildObj.showValueList.includes(this.configInfo.value)) {
+          linkChildObj.disabled = false
         } else {
-          this.configInfo.children[this.configInfo.linkageKey].disabled = true
+          linkChildObj.disabled = true
         }
       }
     }

@@ -1,0 +1,7 @@
+/*单行省略*/
+.omit-1 {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  overflow: hidden;
+}

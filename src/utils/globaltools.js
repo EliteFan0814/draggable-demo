@@ -12,5 +12,16 @@ export default {
         return JSON.parse(JSON.stringify(copyObj))
       }
     })
+    // 将一个数组分为多个数组
+    Object.defineProperty(Vue.prototype, '$sliceArray', {
+      value: function (targetArray, number) {
+        const page = Math.ceil(targetArray.length / number)
+        const returnArr = []
+        for (let i = 0; i < page; i++) {
+          returnArr[i] = targetArray.slice(i * number, (i + 1) * number)
+        }
+        return returnArr
+      }
+    })
   }
 }

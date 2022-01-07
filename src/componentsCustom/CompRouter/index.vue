@@ -1,55 +1,87 @@
 <template>
   <div class="comp-router">
     <!-- 固定布局 -->
-    <div v-if="routerMode === 'fixed'" class="fixed-wrap">
+    <div v-if="configInfo.routerMode === 'fixed'" class="fixed-wrap">
       <div
-        v-for="item in routerListData"
+        v-for="item in configInfo.multiRouterList"
         :key="item.label"
         class="item-wrap"
-        :style="`width:${singleNum}`"
+        :style="`width:${configInfo.singleNum}%`"
       >
         <div class="item">
           <div
-            v-if="showInfo.showImg"
-            :class="{ 'img-wrap': true, 'simgle-img': showInfo.showImg }"
+            v-if="configInfo.showInfo.showImg"
+            :class="{ 'img-wrap': true, 'simgle-img': configInfo.showInfo.showImg }"
           >
             <img :src="item.iconUrl" alt />
           </div>
-          <div v-if="showInfo.showText" class="text-wrap">{{ item.label }}</div>
+          <div v-if="configInfo.showInfo.showText" class="text-wrap">{{ item.label }}</div>
         </div>
       </div>
     </div>
-    <!-- 单行滑动布局 -->
-    <div v-if="routerMode === 'slideSingle'" class="slide-single-wrap">
-      <div class="slide-single" ref="slideSingle" @scroll="getScrollPosition">
+    <!-- 滑动布局 -->
+    <div class="slide-single-wrap">
+      <!-- 单行滑动 -->
+      <div
+        v-if="configInfo.routerMode === 'slideSingle'"
+        class="slide-single"
+        ref="slideSingle"
+        @scroll="getScrollPosition"
+      >
         <div
-          v-for="item in routerListData"
+          v-for="item in  configInfo.multiRouterList"
           :key="item.label"
           class="item-wrap"
-          :style="`width:${singleNum}`"
+          :style="`width:${configInfo.singleNum}%`"
         >
           <div class="item">
             <div
-              v-if="showInfo.showImg"
-              :class="{ 'img-wrap': true, 'simgle-img': showInfo.showImg }"
+              v-if="configInfo.showInfo.showImg"
+              :class="{ 'img-wrap': true, 'simgle-img': configInfo.showInfo.showImg }"
             >
               <img :src="item.iconUrl" alt />
             </div>
-            <div v-if="showInfo.showText" class="text-wrap">{{ item.label }}</div>
+            <div v-if="configInfo.showInfo.showText" class="text-wrap">{{ item.label }}</div>
           </div>
         </div>
       </div>
-      <div class="dot-wrap">
+      <!-- 多行滑动 -->
+      <div
+        v-if="configInfo.routerMode === 'slideMultify'"
+        class="slide-single"
+        ref="slideSingle"
+        @scroll="getScrollPosition"
+      >
+        <div
+          v-for="(page,index) in  configInfo.multiRouterList"
+          :key="index"
+          class="single-page-wrap"
+        >
+          <div
+            v-for="item in page"
+            :key="item.label"
+            class="item-wrap"
+            :style="`width:${configInfo.singleNum}%`"
+          >
+            <div class="item">
+              <div
+                v-if="configInfo.showInfo.showImg"
+                :class="{ 'img-wrap': true, 'simgle-img': configInfo.showInfo.showImg }"
+              >
+                <img :src="item.iconUrl" alt />
+              </div>
+              <div v-if="configInfo.showInfo.showText" class="text-wrap">{{ item.label }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 指示器 -->
+      <div v-if="configInfo.showDot" class="dot-wrap">
         <div class="dot" ref="dot">
           <div class="slider" ref="slider" :style="`left:${positionLeft}px;`"></div>
         </div>
       </div>
     </div>
-    <!-- <van-swipe class="my-swipe" :autoplay="0" indicator-color="white">
-      <van-swipe-item>2</van-swipe-item>
-      <van-swipe-item>3</van-swipe-item>
-      <van-swipe-item>4</van-swipe-item>
-    </van-swipe>-->
   </div>
 </template>
 
@@ -69,16 +101,23 @@ export default {
         { label: '烟', iconUrl: require('@/assets/imgs/icon1.png') },
         { label: '酒香烟', iconUrl: require('@/assets/imgs/icon1.png') },
         { label: '水香烟', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '分', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '分分分', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '饿饿饿', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '日日日', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '哇哇哇哇', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '钱钱钱', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '也一样', iconUrl: require('@/assets/imgs/icon1.png') },
+        { label: '个人发', iconUrl: require('@/assets/imgs/icon1.png') },
       ],
       positionLeft: 0
     }
   },
   computed: {
-    noticeInfo() {
-      return this.configData.notice.children
-    },
-    showInfo() {
-      const flag = this.configData.notice.children.routerForm.value
+    configInfo() {
+      const allSettingInfo = this.configData.settings.children
+      // 展示样式信息
+      const flag = allSettingInfo.routerForm.value
       let showImg = false, showText = false
       if (flag === 'all') {
         showImg = true
@@ -90,14 +129,35 @@ export default {
         showImg = false
         showText = true
       }
-      return { showImg, showText }
+      // 每行个数
+      const singleNum = allSettingInfo.singleNum.value
+      // 每页行数
+      const pageRowNum = allSettingInfo.routerMode.children.pageRowNum.value
+      // 模式 固定，单行滑动，多行滑动
+      const routerMode = allSettingInfo.routerMode.value
+      // 多行滑动时生成分页数据
+      // 每页多少个
+      const pageNum = (100 / singleNum).toFixed() * pageRowNum
+      let multiRouterList, showDot
+      if (routerMode === 'slideMultify') {
+        multiRouterList = this.$sliceArray(this.routerListData, pageNum)
+      } else {
+        multiRouterList = this.routerListData
+      }
+      if (multiRouterList.length > 1) {
+        showDot = true
+      } else {
+        showDot = false
+      }
+      return {
+        noticeInfo: allSettingInfo,// 所有信息
+        showInfo: { showImg, showText },// 展示样式信息
+        routerMode, // 模式
+        singleNum,// 每行个数
+        multiRouterList,// 处理过后的路由数据
+        showDot// 是否显示导航点
+      }
     },
-    routerMode() {
-      return this.configData.notice.children.routerMode.value
-    },
-    singleNum() {
-      return this.configData.notice.children.singleNum.value
-    }
   },
   methods: {
     getScrollPosition() {
@@ -131,24 +191,29 @@ export default {
   color: #fff;
   background-color: #39a9ed;
 }
+// 固定模式
 .fixed-wrap {
   display: flex;
   flex-wrap: wrap;
 }
+// 单行滑动
 .slide-single-wrap {
   .slide-single {
+    // border: 1px solid blue;
     overflow-x: scroll;
     display: flex;
     &::-webkit-scrollbar {
       display: none;
-      height: 3px;
-      background-color: rgb(226, 226, 226);
     }
-    &::-webkit-scrollbar-thumb {
-      background-color: #ccc;
+    .single-page-wrap {
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
     }
   }
   .dot-wrap {
+    padding-bottom: 5px;
     .dot {
       margin: 0 auto;
       width: 30px;
@@ -167,6 +232,7 @@ export default {
     }
   }
 }
+// 内部单个元素样式
 .item-wrap {
   width: 16.67%;
   flex-shrink: 0;
