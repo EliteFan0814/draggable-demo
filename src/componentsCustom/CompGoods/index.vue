@@ -2,20 +2,20 @@
   <div class="comp-goods">
     <!-- 单行列表 -->
     <div class="goods-wrap">
-      <div class="good-item">
-        <img src="@/assets/imgs/good.jpg" class="good-img" />
+      <div v-for="item in goodsList" :key="item.id" class="good-item">
+        <img :src="item.src" class="good-img" />
         <div class="good-info">
           <div class="name-wrap">
-            <span class="name omit-1">心相印聚氨酯心相印聚氨酯心相印聚氨酯</span>
-            <span class="sub">商品小标题</span>
+            <span class="name omit-1">{{ item.name }}</span>
+            <span class="sub omit-1">{{ item.subName }}</span>
           </div>
           <div class="good-price">
-            <span class="price">&yen;200</span>
-            <span class="source">&yen;500</span>
+            <span class="price">&yen;{{ item.price }}</span>
+            <span class="source">&yen;{{ item.source }}</span>
           </div>
         </div>
         <div class="btn">
-          <van-button type="primary" size="small" round>立即购买</van-button>
+          <van-button type="primary" size="mini" round>立即购买</van-button>
         </div>
       </div>
     </div>
@@ -35,6 +35,15 @@ export default {
   data() {
     return {
       value: '',
+      goodsList: [
+        { src: require('@/assets/imgs/good.jpg'), name: '心相心相印抽纸心相印抽纸印抽纸', subName: '心相印抽纸3折促销', price: '29.00', source: '59.99', id: '1' },
+        { src: require('@/assets/imgs/good.jpg'), name: '心相印抽纸', subName: '心相印抽纸3折促销', price: '29.00', source: '59.99', id: '2' },
+        { src: require('@/assets/imgs/good.jpg'), name: '心相印抽纸', subName: '心相印抽纸3折促销', price: '29.00', source: '59.99', id: '3' },
+        { src: require('@/assets/imgs/good.jpg'), name: '心相印抽纸', subName: '心相印心相印抽纸心相印抽纸心相印抽纸抽纸3折促销', price: '29.00', source: '59.99', id: '4' },
+        { src: require('@/assets/imgs/good.jpg'), name: '心相印抽纸', subName: '心相印抽纸3折促销', price: '29.00', source: '59.99', id: '5' },
+        { src: require('@/assets/imgs/good.jpg'), name: '心相印抽纸', subName: '心相印抽纸3折促销', price: '29.00', source: '59.99', id: '6' },
+        { src: require('@/assets/imgs/good.jpg'), name: '心相印抽纸', subName: '心相印抽纸3折促销', price: '29.00', source: '59.99', id: '7' },
+      ]
     }
   },
   computed: {
@@ -74,9 +83,9 @@ export default {
           span {
             display: block;
             text-align: left;
+            width: 180px;
           }
           .name {
-            width: 180px;
             font-size: 16px;
             margin-bottom: 8px;
           }

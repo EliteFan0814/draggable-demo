@@ -283,6 +283,7 @@ export default {
               border: 1px solid #155bd4;
             }
             .comp-operation {
+              background-color: #fff;
               position: relative;
               .operate {
                 position: absolute;
